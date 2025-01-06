@@ -4,6 +4,7 @@ import com.example.simpleBankingSystemChallenge.service.MyUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -29,7 +30,8 @@ public class BasicConfig {
                 .csrf(customizer -> customizer.disable())
                 .authorizeHttpRequests(
                         request -> request
-                                    .requestMatchers("/login","/register").permitAll()
+                                .requestMatchers(HttpMethod.POST,"/api/accounts/").permitAll()
+                                .requestMatchers(HttpMethod.POST,"/api/accounts/login").permitAll()
                                     .anyRequest().authenticated())
                 .cors(Customizer.withDefaults())
                 .httpBasic(Customizer.withDefaults())

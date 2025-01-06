@@ -4,7 +4,7 @@ import lombok.Data;
 
 import java.math.BigDecimal;
 
-public record UserDto(
+public record AccountDto(
         long id,
         String lastName,
         String firstName,

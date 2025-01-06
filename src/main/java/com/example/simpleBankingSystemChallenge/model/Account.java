@@ -8,12 +8,12 @@ import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
 
 @Entity
-@Table(name = "user")
-public final class User{
+@Table(name = "Account")
+public final class Account{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long UserId;
+    private Long userId;
 
     @NotBlank(message = "cannot be blank")
     private String firstName;
@@ -36,21 +36,25 @@ public final class User{
     private String password;
 
     @Column(nullable = false)
-    private User_Role role ;
+    private Role role ;
 
     private Account_Type type;
 
-    public User() {
-        System.out.println("this user has a user_role of "+ this.getRole());
+    public Account() {
     }
 
 
     public Long getUserId() {
-        return UserId;
+               return userId;
+    }
+
+    public void setUserId(Long userId) {
+
+        this.userId = userId;
     }
 
     public String getUsername() {
-        return username;
+        return this.username;
     }
 
     public void setUsername(String username) {
@@ -63,10 +67,6 @@ public final class User{
 
     public void setType(Account_Type type) {
         this.type = type;
-    }
-
-    public void setUserId(Long userId) {
-        UserId = userId;
     }
 
     public String getFirstName() {
@@ -120,11 +120,11 @@ public final class User{
         return password;
     }
 
-    public User_Role getRole() {
+    public Role getRole() {
         return role;
     }
 
-    public void setRole(User_Role role) {
+    public void setRole(Role role) {
         this.role = role;
     }
 

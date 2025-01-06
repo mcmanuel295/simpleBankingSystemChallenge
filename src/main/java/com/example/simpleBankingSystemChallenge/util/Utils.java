@@ -1,13 +1,13 @@
 package com.example.simpleBankingSystemChallenge.util;
 
-import com.example.simpleBankingSystemChallenge.dto.UserDto;
-import com.example.simpleBankingSystemChallenge.model.User;
+import com.example.simpleBankingSystemChallenge.dto.AccountDto;
+import com.example.simpleBankingSystemChallenge.model.Account;
 
 public class Utils {
 
 
-    public static UserDto toDto(User user){
-        return new UserDto(
+    public static AccountDto toDto(Account user){
+        return new AccountDto(
                 user.getUserId(),
                 user.getLastName(),
                 user.getFirstName(),
@@ -15,8 +15,8 @@ public class Utils {
     }
 
 
-    public static User toUser(UserDto dto){
-        User user = new User();
+    public static Account toUser(AccountDto dto){
+        Account user = new Account();
 
         user.setUserId(dto.id());
         user.setLastName(dto.lastName());

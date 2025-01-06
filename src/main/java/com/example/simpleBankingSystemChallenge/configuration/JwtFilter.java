@@ -18,11 +18,14 @@ import java.io.IOException;
 @Configuration
 public class JwtFilter extends OncePerRequestFilter {
 
-    @Autowired
-    MyUserDetailsService myUserDetailsService;
+    private MyUserDetailsService myUserDetailsService;
 
-    @Autowired
-    JwtService jwtService;
+    private JwtService jwtService;
+
+    public JwtFilter(MyUserDetailsService myUserDetailsService, JwtService jwtService) {
+        this.myUserDetailsService = myUserDetailsService;
+        this.jwtService = jwtService;
+    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -40,6 +43,8 @@ public class JwtFilter extends OncePerRequestFilter {
             UserDetails userDetails = myUserDetailsService.loadUserByUsername(username);
 
             System.out.println("the username in the authentication section is "+ username);
+
+            System.out.println(jwtService.validate(token,userDetails));
 
             if (jwtService.validate(token,userDetails)){
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails, null,userDetails.getAuthorities());

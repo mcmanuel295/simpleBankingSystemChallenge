@@ -10,25 +10,25 @@ import java.util.Collections;
 
 public class MyUserDetails implements UserDetails {
     @Autowired
-    User user;
+    Account account;
 
-    public MyUserDetails(User user) {
-        this.user = user;
+    public MyUserDetails(Account account) {
+        this.account = account;
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singleton( new SimpleGrantedAuthority("ROLE_USER"));
+        return Collections.singleton( new SimpleGrantedAuthority(account.getRole().name()));
     }
 
     @Override
     public String getPassword() {
-        return user.getPassword();
+        return account.getPassword();
     }
 
     @Override
     public String getUsername() {
-        return user.getUsername();
+        return account.getUsername();
     }
 
     @Override

@@ -1,6 +1,6 @@
 package com.example.simpleBankingSystemChallenge.service;
 
-import com.example.simpleBankingSystemChallenge.model.User;
+import com.example.simpleBankingSystemChallenge.model.Account;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -73,7 +73,7 @@ public class JwtService {
     }
 
 
-    public String generateToken(User user) {
+    public String generateToken(Account user) {
         Map<String, Object> claims = new HashMap<>();
 
         return Jwts.builder()

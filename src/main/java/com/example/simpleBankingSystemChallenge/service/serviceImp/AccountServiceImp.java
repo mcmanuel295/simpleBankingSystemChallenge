@@ -1,11 +1,11 @@
 package com.example.simpleBankingSystemChallenge.service.serviceImp;
 
-import com.example.simpleBankingSystemChallenge.dto.UserDto;
+import com.example.simpleBankingSystemChallenge.dto.AccountDto;
 import com.example.simpleBankingSystemChallenge.exception.OurException;
-import com.example.simpleBankingSystemChallenge.model.User;
-import com.example.simpleBankingSystemChallenge.repository.UserRepository;
+import com.example.simpleBankingSystemChallenge.model.Account;
+import com.example.simpleBankingSystemChallenge.repository.AccountRepository;
+import com.example.simpleBankingSystemChallenge.service.AccountService;
 import com.example.simpleBankingSystemChallenge.service.JwtService;
-import com.example.simpleBankingSystemChallenge.service.UserService;
 import com.example.simpleBankingSystemChallenge.util.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -17,15 +17,15 @@ import java.math.BigDecimal;
 import java.util.List;
 
 @Service
-public class UserServiceImp implements UserService {
+public class AccountServiceImp implements AccountService {
 
-    private final UserRepository repo;
+    private final AccountRepository repo;
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
 
     //  Constructor
     @Autowired
-    public UserServiceImp(UserRepository repo, AuthenticationManager authenticationManager,JwtService service) {
+    public AccountServiceImp(AccountRepository repo, AuthenticationManager authenticationManager,JwtService service) {
         this.repo = repo;
         this.authenticationManager =authenticationManager;
         this.jwtService =service;
@@ -34,16 +34,17 @@ public class UserServiceImp implements UserService {
 
     //  Create new User Account
     @Override
-    public UserDto createAccount(User user) {
+    public AccountDto createAccount(Account user) {
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
         user.setPassword(encoder.encode(user.getPassword()));
 
-       User saveUuser = repo.save(user);
-       return Utils.toDto(saveUuser);
+       Account savedUser = repo.save(user);
+       return Utils.toDto(savedUser);
     }
 
+
     @Override
-    public String verify(User user) {
+    public String verify(Account user) {
         Authentication authentication =authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(user.getUsername(),user.getPassword()));
 
@@ -55,12 +56,27 @@ public class UserServiceImp implements UserService {
 
 
 
+//    deposit method
+    @Override
+    public AccountDto deposit(long userId, BigDecimal amount) {
+        try {
+            Account user = repo.findById(userId).orElseThrow(()-> new OurException("User Not Found!!!"));
+            user.setAccountBalance( user.getAccountBalance().add(amount));
+
+            return Utils.toDto(user);
+
+        } catch (OurException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
     //    Withdraw from user account
     @Override
-    public UserDto withdraw(long userId, BigDecimal amount) {
+    public AccountDto withdraw(long userId, BigDecimal amount) {
         try {
 
-            User savedUser = repo.findById(userId).orElseThrow(() -> new OurException("User Not Found"));
+            Account savedUser = repo.findById(userId).orElseThrow(() -> new OurException("User Not Found"));
             BigDecimal balance = savedUser.getAccountBalance();
 
             if (balance.subtract(amount).compareTo(BigDecimal.ZERO) < 0) {
@@ -71,16 +87,13 @@ public class UserServiceImp implements UserService {
                 }
             }
 
-
             balance = balance.subtract(amount);
             savedUser.setAccountBalance(balance);
             return Utils.toDto(savedUser);
 
-
         } catch (OurException e) {
             throw new RuntimeException(e);
         }
-
     }
 
 
@@ -88,13 +101,13 @@ public class UserServiceImp implements UserService {
     @Override
     public BigDecimal balanceCheck(long userId) {
 
-        User savedUser;
         try {
-            savedUser = repo.findById(userId).orElseThrow(() -> new OurException("User Not Found!!!"));
+            Account savedUser= repo.findById(userId).orElseThrow(() -> new OurException("User Not Found!!!"));
+            return savedUser.getAccountBalance();
+
         } catch (OurException e) {
             throw new RuntimeException(e);
         }
-        return savedUser.getAccountBalance();
     }
 
 
@@ -102,13 +115,10 @@ public class UserServiceImp implements UserService {
     public String transfer(long userId, String recipientAccount, BigDecimal amount) {
 
         try {
-            User recipient = repo.findByAccountNumber(recipientAccount).orElseThrow(() -> new OurException("Recipient Account Not Found!!!"));
+            Account recipient = repo.findByAccountNumber(recipientAccount).orElseThrow(() -> new OurException("Recipient Account Not Found!!!"));
 
-            BigDecimal recipientAccountBalance = recipient.getAccountBalance();
-            recipientAccountBalance = recipientAccountBalance.add(amount);
-            recipient.setAccountBalance(recipientAccountBalance);
-
-            UserDto dto = withdraw(userId, amount);
+            deposit(recipient.getUserId(),amount);
+            AccountDto dto = withdraw(userId, amount);
 
             return dto+" transferred "+amount+" to " +recipientAccount;
 
@@ -118,8 +128,8 @@ public class UserServiceImp implements UserService {
     }
 
     @Override
-    public UserDto updateUser(long userId,User user) {
-        User savedUser = null;
+    public AccountDto updateUser(long userId,Account user) {
+        Account savedUser = null;
         try {
             savedUser = repo.findById(userId).orElseThrow(()-> new OurException("User Not Found!!"));
             repo.save(user);
@@ -131,11 +141,14 @@ public class UserServiceImp implements UserService {
     }
 
 
-    public List<UserDto> getAllUser() {
+    @Override
+    public List<AccountDto> getAllAccount() {
         return repo.findAll()
                 .stream()
                 .map(user->
-                   new UserDto(user.getUserId(), user.getLastName(), user.getFirstName(), user.getAccountBalance()))
+                   new AccountDto(user.getUserId(), user.getLastName(), user.getFirstName(), user.getAccountBalance()))
                 .toList();
     }
+
+
 }
